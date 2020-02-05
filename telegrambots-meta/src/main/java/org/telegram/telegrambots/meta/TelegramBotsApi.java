@@ -1,5 +1,7 @@
 package org.telegram.telegrambots.meta;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 import org.telegram.telegrambots.meta.generics.BotSession;
 import org.telegram.telegrambots.meta.generics.LongPollingBot;
@@ -15,6 +17,9 @@ import java.text.MessageFormat;
  * @date 14 of January of 2016
  */
 public class TelegramBotsApi {
+
+    private static final Logger log = LoggerFactory.getLogger(TelegramBotsApi.class);
+
     private static final String webhookUrlFormat = "{0}callback/";
     private boolean useWebhook; ///< True to enable webhook usage
     private Webhook webhook; ///< Webhook instance
@@ -123,6 +128,7 @@ public class TelegramBotsApi {
         session.setOptions(bot.getOptions());
         session.setCallback(bot);
         session.start();
+        log.info("Registered long-polling bot '{}'", bot.getBotUsername());
         return session;
     }
 
@@ -133,7 +139,9 @@ public class TelegramBotsApi {
     public void registerBot(WebhookBot bot) throws TelegramApiRequestException {
         if (useWebhook) {
             webhook.registerWebhook(bot);
+            String url = externalUrl + bot.getBotPath();
             bot.setWebhook(externalUrl + bot.getBotPath(), pathToCertificate);
+            log.info("Registered webhook bot '{}' with callback url {}", bot.getBotUsername(), url);
         }
     }
 
